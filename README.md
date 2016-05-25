@@ -40,7 +40,7 @@ Thunk middleware 不是唯一实现异步 action 的方式，也可以使用 `re
 
 ## 实现过程
 
-下面是整个 demo 的实现过程，参考 [Redux Demo][1] 的实现。
+下面是整个 demo 的实现过程，参考 [Redux Demo][2] 的实现。
 
 a. 设计 state
 
@@ -134,4 +134,54 @@ e. 写 React 组件。展示组件拆分成 Picker 和 Posts ，前者用来选�
 
 f. 连接到 Redux。在使用 connect 连接 React 组件和 Redux 时，可以传递一个 mapStateToProps，对从 Redux store 得到的全局 state 进行过滤，返回组件所需要的 props 。
 
+## 补充 & 进阶
+
+### [减少样板代码][3]
+
+有以下几种办法：
+
+- 写 action creator 生成函数，或使用 `redux-actions`，生成 action creators
+- 用中间件处理复杂 actions（比如要进行异步操作的 actions）
+- 写 reducer 生成函数，生成 reducers
+
+### [服务器端渲染][4]
+
+第一次请求时，使用服务器端渲染。当服务器收到请求后，把需要的组件渲染成 HTML 字符串返回给客户端。之后客户端接手渲染。
+
+Redux 在服务器端要做的事情就是，提供初始 state，通常是添加一个 `script` 标签，把 `initialState` 赋给 `window.__INITIAL_STATE__`
+
+### [编写测试][5]
+
+需要对以下模块编写测试：
+
+- action creators
+- reducers
+- components
+- middlewares
+
+### [Redux API][6]
+
+顶级 API 有以下五个：
+
+- `createStore(reducer, [initialState])` 创建一个 Redux store
+- `combineReducers(...reducers)` 合并 reducers
+- `applyMiddleware(...middlewares)` 应用中间件，扩展 dispatch
+- `bindActionCreators(actionCreator, dispatch)` 使用 dispatch 包装 action creator
+- `componse(...functions)` 从右到左组合函数
+
+顶级 API 可以直接这样引入：
+
+    import { createStore } from 'redux'
+
+## 参考
+
+[Redux 教程高级篇][7]
+
+
   [1]: https://github.com/huangtengfei/redux-demo
+  [2]: https://github.com/huangtengfei/redux-demo
+  [3]: http://cn.redux.js.org/docs/recipes/ReducingBoilerplate.html
+  [4]: http://cn.redux.js.org/docs/recipes/ServerRendering.html
+  [5]: http://cn.redux.js.org/docs/recipes/WritingTests.html
+  [6]: http://cn.redux.js.org/docs/api/index.html
+  [7]: http://cn.redux.js.org/docs/advanced/index.html
