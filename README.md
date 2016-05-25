@@ -1,10 +1,10 @@
 # Redux Async Demo
 
-这是基于 [Redux Demo][1] 做的一个带有异步操作的示例。
+这是基于 [Redux Demo][1] 做的一个带有异步操作的示例，抓取 reddit 指定主题的帖子。
 
 ## 安装 & 运行：
 
-```javascript
+```
 git clone https://github.com/huangtengfei/redux-async-demo.git
 cd redux-async-demo
 npm install
@@ -13,21 +13,25 @@ npm run dev
 
 打开 http://localhost:8080 即可看到效果。
 
-Redux 的基础知识已经在 Redux Demo 中有讲过了，所以这里只 讲一下两者不同的地方，即异步 action 的实现，并介绍整个 Demo 的实现过程。
+Redux 的基础知识已经在 Redux Demo 中有讲过了，所以这里只讲一下两者不同的地方，即异步 action 的实现，并介绍整个 Demo 的实现过程。
 
-## 如何将同步 Action Creator 和 异步操作结合
+## 如何将同步 Action Creator 和异步操作结合
 
-借助于 Redux Thunk middleware，可以使得 action creator 不仅能返回 action 对象，还能返回函数。返回的函数被 Redux Thunk middleware 执行，thunk 的结果可以再次被 dispatch。
+可以使用 `redux thunk` middleware 来将同步 Action Creator 和异步操作结合。它使得 action creator 不仅能返回 action 对象，还能返回函数。返回的函数被 `redux thunk` middleware 执行，thunk 的结果可以再次被 dispatch。
+
+使用 `redux thunk` middleware 需要先安装 `redux-thunk`
+
+    npm install redux-thunk --save
 
 下面是 thunk action creator 的定义方式：
 
 ```javascript
 export fetchPosts(reddit) {
   return function(dispatch) {
-    dispatch(requestPosts(reddit))
-    return fetch('http://www.subreddit.com/r/' + reddit + '.json')
+    dispatch(requestPosts(reddit)) // 结合 requestPosts action creator
+    return fetch('http://xxx/' + reddit + '.json')
       .then(resp => resp.json())
-      .then(json => dispatch(receivePosts(reddit, json)))
+      .then(json => dispatch(receivePosts(reddit, json))) // 结合 receivePosts action creator 
   }
 }
 ```
@@ -36,11 +40,15 @@ Thunk middleware 不是唯一实现异步 action 的方式，也可以使用 `re
 
 ## 实现过程
 
+下面是整个 demo 的实现过程，参考 [Redux Demo][1] 的实现。
+
 a. 设计 state
+
+分析可知，本应用只有两种数据需要存储，即选中的主题和主题下的帖子，所以，state 的整体结构如下：
 
 ```javascript
 {
-    selectedReddit: 'f2e',
+    selectedReddit: 'reactjs',
     postsByReddit: {
         angularjs: {
             isFetching: true, // 是否正在抓取
@@ -66,17 +74,19 @@ a. 设计 state
 
 b. 设计 actions
 
+本应用的 actions 分成两块，一块是用户控制的，一块是网络请求触发的。
+
 用户控制：
 
  - 选择要显示的 reddit：SELECTED_REDDIT
  - 刷新 reddit 列表：INVALIDATE_REDDIT
 
-网络
+网络：
 
  - 发出请求：REQUEST_POSTS
  - 请求响应：RECEIVE_POSTS
 
-这些 Actions 和 Action Creators 都是同步的，要将它们和异步的网络操作结合起来，这些处理在 actions 文件中完成
+这些 Actions 和 Action Creators 都是同步的，要将它们和异步的网络操作结合起来，这些处理在 actions 文件中使用 `redux-thunk` middleware 完成。
 
 c. 设计 reducers
 
@@ -120,10 +130,8 @@ store.dispatch(fetchPostsIfNeeded('reactjs')).then(() =>
 )
 ```
 
-## 补充
+e. 写 React 组件。展示组件拆分成 Picker 和 Posts ，前者用来选择主题，后者用来显示选中主题下的帖子。在容器组件中将这两个展示组件进行封装，并根据异步请求的结果，显示一些提示信息。
 
-### 网络请求失败的处理
-
-### 嵌套的API相应数据范式化
+f. 连接到 Redux。在使用 connect 连接 React 组件和 Redux 时，可以传递一个 mapStateToProps，对从 Redux store 得到的全局 state 进行过滤，返回组件所需要的 props 。
 
   [1]: https://github.com/huangtengfei/redux-demo
