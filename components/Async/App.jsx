@@ -3,8 +3,8 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import { selectReddit, invalidateReddit, fetchPostsIfNeeded } from './actions.js'
-import Picker from './picker.js'
-import Posts from './posts.js'
+import Picker from './Picker.jsx'
+import Posts from './Posts.jsx'
 
 class App extends Component {
 

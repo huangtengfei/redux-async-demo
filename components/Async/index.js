@@ -7,7 +7,7 @@ import { createStore, applyMiddleware } from 'redux'
 
 import rootReducer from './reducers.js'
 import { selectReddit, fetchPostsIfNeeded } from './actions.js'
-import App from './App.js'
+import App from './App.jsx'
 
 const loggerMiddleware = createLogger()
 
